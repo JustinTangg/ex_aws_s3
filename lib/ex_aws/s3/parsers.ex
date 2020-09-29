@@ -117,6 +117,8 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, %{resp | body: parsed_body}}
     end
 
+    def parse_bucket_acl(val), do: val
+
     @spec parse_bucket_policy_status({:ok, %{body: any}}) :: {:ok, %{body: nil | [any] | map}}
     def parse_bucket_policy_status({:ok, resp = %{body: xml}}) do
       parsed_body =
@@ -127,6 +129,8 @@ if Code.ensure_loaded?(SweetXml) do
 
       {:ok, %{resp | body: parsed_body}}
     end
+
+    def parse_bucket_policy_status(val), do: val
 
     defp to_boolean(xpath) do
       xpath |> SweetXml.transform_by(&(&1 == "true"))
@@ -146,6 +150,8 @@ if Code.ensure_loaded?(SweetXml) do
       {:ok, %{resp | body: parsed_body}}
     end
 
+    def parse_bucket_tagging(val), do: val
+
     def parse_bucket_encryption({:ok, resp = %{body: xml}}) do
       parsed_body =
         xml
@@ -159,6 +165,8 @@ if Code.ensure_loaded?(SweetXml) do
 
       {:ok, %{resp | body: parsed_body}}
     end
+
+    def parse_bucket_encryption(val), do: val
 
     @spec parse_upload_part_copy(any) :: any
     def parse_upload_part_copy(val), do: val
