@@ -249,13 +249,20 @@ defmodule ExAws.S3 do
   @doc "Get bucket acl"
   @spec get_bucket_acl(bucket :: binary) :: ExAws.Operation.S3.t()
   def get_bucket_acl(bucket) do
-    request(:get, bucket, "/", resource: "acl")
+    request(:get, bucket, "/", [resource: "acl"], parser: &ExAws.S3.Parsers.parse_bucket_acl/1)
   end
 
   @doc "Get bucket cors"
   @spec get_bucket_cors(bucket :: binary) :: ExAws.Operation.S3.t()
   def get_bucket_cors(bucket) do
     request(:get, bucket, "/", resource: "cors")
+  end
+
+  @spec get_bucket_encryption(bucket :: binary) :: ExAws.Operation.S3.t()
+  def get_bucket_encryption(bucket) do
+    request(:get, bucket, "/", [resource: "encryption"],
+      parser: &ExAws.S3.Parsers.parse_bucket_encryption/1
+    )
   end
 
   @doc "Get bucket lifecycle"

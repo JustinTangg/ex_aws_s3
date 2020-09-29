@@ -88,6 +88,35 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse_initiate_multipart_upload(val), do: val
 
+    def parse_bucket_acl({:ok, resp = %{body: xml}}) do
+      parsed_body =
+        xml
+        |> SweetXml.xpath(~x"//AccessControlPolicy",
+          owner: [
+            ~x"./Owner"o,
+            id: ~x"./ID/text()"s,
+            display_name: ~x"./DisplayName/text()"s
+          ],
+          grants: [
+            ~x"./AccessControlList"l,
+            grant: [
+              ~x"./Grant"o,
+              grantee: [
+                ~x"./Grantee"o,
+                display_name: ~x"./DisplayName/text()"s,
+                email_address: ~x"./EmailAddress/text()"s,
+                id: ~x"./ID/text()"s,
+                type: ~x"./Type/text()"s,
+                uri: ~x"./URI/text()"s
+              ],
+              permission: ~x"./Permission/text()"s
+            ]
+          ]
+        )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+
     @spec parse_bucket_policy_status({:ok, %{body: any}}) :: {:ok, %{body: nil | [any] | map}}
     def parse_bucket_policy_status({:ok, resp = %{body: xml}}) do
       parsed_body =
@@ -101,6 +130,20 @@ if Code.ensure_loaded?(SweetXml) do
 
     defp to_boolean(xpath) do
       xpath |> SweetXml.transform_by(&(&1 == "true"))
+    end
+
+    def parse_bucket_encryption({:ok, resp = %{body: xml}}) do
+      parsed_body =
+        xml
+        |> SweetXml.xpath(~x"//ServerSideEncryptionConfiguration",
+          rules: [
+            ~x"./Rule"l,
+            sse_algorithm: ~x"./ApplyServerSideEncryptionByDefault/SSEAlgorithm/text()"s,
+            kms_master_key_id: ~x"./ApplyServerSideEncryptionByDefault/KMSMasterKeyID/text()"s
+          ]
+        )
+
+      {:ok, %{resp | body: parsed_body}}
     end
 
     @spec parse_upload_part_copy(any) :: any
