@@ -312,7 +312,9 @@ defmodule ExAws.S3 do
   @doc "Get bucket tagging"
   @spec get_bucket_tagging(bucket :: binary) :: ExAws.Operation.S3.t()
   def get_bucket_tagging(bucket) do
-    request(:get, bucket, "/", resource: "tagging")
+    request(:get, bucket, "/", [resource: "tagging"],
+      parser: &ExAws.S3.Parsers.parse_bucket_tagging/1
+    )
   end
 
   @doc "Get bucket object versions"

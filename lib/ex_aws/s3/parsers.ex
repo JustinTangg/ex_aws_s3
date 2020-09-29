@@ -132,6 +132,20 @@ if Code.ensure_loaded?(SweetXml) do
       xpath |> SweetXml.transform_by(&(&1 == "true"))
     end
 
+    def parse_bucket_tagging({:ok, resp = %{body: xml}}) do
+      parsed_body =
+        xml
+        |> SweetXml.xpath(~x"//Tagging",
+          tag_set: [
+            ~x"./TagSet/Tag"l,
+            key: ~x"./Key/text()"s,
+            value: ~x"./Value/text()"s
+          ]
+        )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+
     def parse_bucket_encryption({:ok, resp = %{body: xml}}) do
       parsed_body =
         xml
