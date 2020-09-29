@@ -119,6 +119,18 @@ if Code.ensure_loaded?(SweetXml) do
 
     def parse_bucket_acl(val), do: val
 
+    def parse_bucket_location({:ok, resp = %{body: xml}}) do
+      parsed_body =
+        xml
+        |> SweetXml.xpath(~x"/",
+          region: ~x"./LocationConstraint/text()"s
+        )
+
+      {:ok, %{resp | body: parsed_body}}
+    end
+
+    def parse_bucket_location(val), do: val
+
     @spec parse_bucket_policy_status({:ok, %{body: any}}) :: {:ok, %{body: nil | [any] | map}}
     def parse_bucket_policy_status({:ok, resp = %{body: xml}}) do
       parsed_body =

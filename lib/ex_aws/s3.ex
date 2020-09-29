@@ -288,7 +288,9 @@ defmodule ExAws.S3 do
   @doc "Get bucket location"
   @spec get_bucket_location(bucket :: binary) :: ExAws.Operation.S3.t()
   def get_bucket_location(bucket) do
-    request(:get, bucket, "/", resource: "location")
+    request(:get, bucket, "/", [resource: "location"],
+      parser: &ExAws.S3.Parsers.parse_bucket_location/1
+    )
   end
 
   @doc "Get bucket logging"
