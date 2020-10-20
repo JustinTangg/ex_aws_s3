@@ -438,9 +438,31 @@ defmodule ExAws.S3 do
 
   @doc "Update or create a bucket tagging configuration"
   @spec put_bucket_tagging(bucket :: binary, tags :: map()) :: no_return
-  def put_bucket_tagging(bucket, _tags) do
-    raise "not yet implemented"
-    request(:put, bucket, "/")
+  def put_bucket_tagging(bucket, tags, opts \\ []) do
+    tags_xml =
+      Enum.map(tags, fn {key, value} ->
+        ["<Tag><Key>", to_string(key), "</Key><Value>", to_string(value), "</Value></Tag>"]
+      end)
+
+    body = [
+      ~s(<?xml version="1.0" encoding="UTF-8"?>),
+      "<Tagging>",
+      "<TagSet>",
+      tags_xml,
+      "</TagSet>",
+      "</Tagging>"
+    ]
+
+    content_md5 = :crypto.hash(:md5, body) |> Base.encode64()
+
+    headers =
+      opts
+      |> Map.new()
+      |> Map.merge(%{"content-md5" => content_md5})
+
+    body_binary = body |> IO.iodata_to_binary()
+
+    request(:put, bucket, "/", resource: "tagging", body: body_binary, headers: headers)
   end
 
   @doc "Update or create a bucket requestPayment configuration"
